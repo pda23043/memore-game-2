@@ -2,7 +2,7 @@
 <html lang="el">
 <head>
   <meta charset="UTF-8">
-  <title>Memory Game με Αριθμούς</title>
+  <title>Memory Game</title>
 
   <style>
     body {
@@ -15,6 +15,29 @@
 
     h1 {
       margin-top: 25px;
+    }
+
+    .menu {
+      margin-top: 40px;
+    }
+
+    .menu button,
+    .restart-btn,
+    .back-btn {
+      padding: 12px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      background: #e63946;
+      color: white;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .menu button:hover,
+    .restart-btn:hover,
+    .back-btn:hover {
+      background: #ff4d5a;
     }
 
     .info {
@@ -40,7 +63,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 45px;
+      font-size: 42px;
       font-weight: bold;
       transition: 0.3s;
       user-select: none;
@@ -53,24 +76,13 @@
 
     .card.flipped,
     .card.matched {
-      background: #ffffff;
+      background: white;
       color: #e63946;
       transform: rotateY(180deg);
     }
 
-    button {
-      padding: 12px 25px;
-      font-size: 18px;
-      border: none;
-      border-radius: 10px;
-      background: #e63946;
-      color: white;
-      cursor: pointer;
-      margin-bottom: 25px;
-    }
-
-    button:hover {
-      background: #ff4d5a;
+    #gameArea {
+      display: none;
     }
 
     @media (max-width: 600px) {
@@ -83,7 +95,7 @@
       .card {
         width: 80px;
         height: 80px;
-        font-size: 32px;
+        font-size: 30px;
       }
     }
   </style>
@@ -91,28 +103,59 @@
 
 <body>
 
-  <h1>Memory Game με Αριθμούς</h1>
+  <h1>Memory Game</h1>
 
-  <div class="info">Κινήσεις: <span id="moves">0</span></div>
-  <div class="info" id="message">Βρες όλα τα ζευγάρια!</div>
+  <div id="menu" class="menu">
+    <h2>Διάλεξε κατηγορία</h2>
+    <button onclick="chooseGame('numbers')">Memory με Αριθμούς</button>
+    <button onclick="chooseGame('symbols')">Memory με Σύμβολα</button>
+  </div>
 
-  <div class="game" id="game"></div>
+  <div id="gameArea">
+    <div class="info">Κατηγορία: <span id="categoryName"></span></div>
+    <div class="info">Κινήσεις: <span id="moves">0</span></div>
+    <div class="info" id="message">Βρες όλα τα ζευγάρια!</div>
 
-  <button onclick="restartGame()">Ξεκίνα ξανά</button>
+    <div class="game" id="game"></div>
+
+    <button class="restart-btn" onclick="restartGame()">Ξεκίνα ξανά</button>
+    <button class="back-btn" onclick="backToMenu()">Πίσω στο μενού</button>
+  </div>
 
   <script>
-    const numbers = ["1", "2", "3", "4", "5", "6", "7", "8"];
+    const numberCards = ["1", "2", "3", "4", "5", "6", "7", "8"];
+    const symbolCards = ["★", "●", "◆", "▲", "☀", "☁", "♥", "♣"];
 
+    let selectedCards = [];
     let cards = [];
+
     let firstCard = null;
     let secondCard = null;
     let lockBoard = false;
     let moves = 0;
     let matchedPairs = 0;
 
+    const menu = document.getElementById("menu");
+    const gameArea = document.getElementById("gameArea");
     const game = document.getElementById("game");
     const movesText = document.getElementById("moves");
     const message = document.getElementById("message");
+    const categoryName = document.getElementById("categoryName");
+
+    function chooseGame(type) {
+      if (type === "numbers") {
+        selectedCards = numberCards;
+        categoryName.textContent = "Αριθμοί";
+      } else {
+        selectedCards = symbolCards;
+        categoryName.textContent = "Σύμβολα";
+      }
+
+      menu.style.display = "none";
+      gameArea.style.display = "block";
+
+      startGame();
+    }
 
     function startGame() {
       game.innerHTML = "";
@@ -125,13 +168,13 @@
       movesText.textContent = moves;
       message.textContent = "Βρες όλα τα ζευγάρια!";
 
-      cards = [...numbers, ...numbers];
+      cards = [...selectedCards, ...selectedCards];
       cards.sort(() => Math.random() - 0.5);
 
-      cards.forEach(number => {
+      cards.forEach(value => {
         const card = document.createElement("div");
         card.classList.add("card");
-        card.dataset.value = number;
+        card.dataset.value = value;
         card.textContent = "?";
 
         card.addEventListener("click", flipCard);
@@ -167,7 +210,7 @@
         matchedPairs++;
         resetCards();
 
-        if (matchedPairs === numbers.length) {
+        if (matchedPairs === selectedCards.length) {
           message.textContent = "Μπράβο! Τα βρήκες όλα σε " + moves + " κινήσεις!";
         }
       } else {
@@ -195,7 +238,10 @@
       startGame();
     }
 
-    startGame();
+    function backToMenu() {
+      gameArea.style.display = "none";
+      menu.style.display = "block";
+    }
   </script>
 
 </body>
